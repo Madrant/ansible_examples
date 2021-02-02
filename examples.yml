@@ -15,3 +15,6 @@ ansible-playbook -i inv.yml playbook.yml --tags "config,packages"
 
 # Exclude some tags from execution
 ansible-playbook -i inv.yml playbook.yml --skip-tags "config,packages"
+
+# Execute playbook locally (hosts: localhost)
+ansible-playbook --connection=local playbook.yml --ask-become-pass
