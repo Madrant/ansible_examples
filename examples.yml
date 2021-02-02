@@ -1,0 +1,17 @@
+# Test connection with host using ping module:
+ansible server -i inv.yml -m ping
+
+# Execute remote command using raw, shell or command module
+ansible server -i inv.yml -m shell -a "touch /tmp/test"
+
+# Execute remote command that requires privilege escalation and ask for sudo password
+ansible-playbook -i inv.yml playbook.yml --ask-become-pass
+
+# List tags from playbook
+ansible-playbook -i inv.yml --list-tags playbook.yml
+
+# Execute selected tags
+ansible-playbook -i inv.yml playbook.yml --tags "config,packages"
+
+# Exclude some tags from execution
+ansible-playbook -i inv.yml playbook.yml --skip-tags "config,packages"
