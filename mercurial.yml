@@ -1,0 +1,30 @@
+- hosts: localhost,all
+
+  tasks:
+
+  - name: Install mercurial
+    apt:
+      name:
+      - mercurial
+      state: present
+      update_cache: no
+    become: yes
+
+  - name: Enable extensions
+    ini_file:
+      path: /etc/mercurial/hgrc
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+    with_items:
+      - { section: "tortoisehg", option: "ui.language", value: "en" }
+
+      - { section: "extensions", value: "", option: "purge" }
+      - { section: "extensions", value: "", option: "largefiles" }
+      - { section: "extensions", value: "", option: "strip" }
+      - { section: "extensions", value: "", option: "rebase" }
+      - { section: "extensions", value: "", option: "hgext.bookmarks" }
+
+      - { section: "http_proxy", option: "host", value: "corvus.localnet:8080" }
+      - { section: "http_proxy", option: "no", value: "*.localnet,192.168.253.0/24" }
+    become: yes
