@@ -1,0 +1,12 @@
+- hosts: localhost
+
+  tasks:
+  - name: Generate SSH key
+    local_action:
+      module: "user"
+      name: "{{ lookup('env','USER') }}"
+      generate_ssh_key: true
+      ssh_key_type: "rsa"
+      ssh_key_file: "~/.ssh/{{ item.0 }}"
+    with_together:
+    - [ 'test' ]
