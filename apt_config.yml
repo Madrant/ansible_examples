@@ -1,0 +1,56 @@
+- hosts: all
+
+  vars:
+    dist_name: buster
+    apt_proxy: "http://apt-cacher.localnet:3142"
+    apt_sources:
+      - "deb http://mirror.yandex.ru/debian {{ dist_name }} main contrib non-free"
+      - "deb-src http://mirror.yandex.ru/debian {{ dist_name }} main contrib non-free"
+
+      - "deb http://mirror.yandex.ru/debian {{ dist_name }}-updates main contrib non-free"
+      - "deb-src http://mirror.yandex.ru/debian {{ dist_name }}-updates main contrib non-free"
+
+      - "deb http://mirror.yandex.ru/debian {{ dist_name }}-backports main contrib non-free"
+      - "deb-src http://mirror.yandex.ru/debian {{ dist_name }}-backports main contrib non-free"
+
+      - "deb http://mirror.yandex.ru/debian-security {{ dist_name }}/updates main contrib non-free"
+      - "deb-src http://mirror.yandex.ru/debian-security {{ dist_name }}/updates main contrib non-free"
+
+  tasks:
+    - name: Setup apt proxy
+      copy:
+        dest: /etc/apt/apt.conf.d/99proxy
+        content: |
+          Acquire::http::proxy "{{ apt_proxy }}";
+      become: yes
+
+    - name: Remove apt proxy from apt.conf
+      lineinfile:
+        path: /etc/apt/apt.conf
+        regexp: '^Acquire::http::proxy' # Note: ':' is surrounded by single quotes
+        state: absent
+      become: yes
+
+    - name: Setup apt sources list
+      apt_repository:
+        repo: "{{ item }}"
+        filename: "{{ dist_name }}"
+        state: present
+      with_items: "{{ apt_sources }}"
+      become: yes
+
+    - name: Remove old sources from /etc/apt/sources.list
+      lineinfile:
+        path: /etc/apt/sources.list
+        regexp: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ dist_name }} main"
+        - "{{ dist_name }}/updates"
+        - "{{ dist_name }}-updates"
+      become: yes
+
+    - name: Update sources
+      apt:
+        update_cache: yes
+      become: yes
