@@ -1,0 +1,25 @@
+- hosts: all
+
+  tasks:
+    - name: Install 'locales' package
+      apt:
+        name: locales
+      become: yes
+
+    - name: Generate locales
+      locale_gen:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - "en_US.UTF-8"
+        - "en_GB.UTF-8"
+        - "ru_RU.UTF-8"
+      become: yes
+
+    - name: Set default locale to 'en_US.UTF-8'
+      command: localectl set-locale en_US.UTF-8
+      become: yes
+
+    - name: Change time format to 24-hour
+      command: localectl set-locale LC_TIME=en_GB.UTF-8
+      become: yes
