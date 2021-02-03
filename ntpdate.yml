@@ -1,0 +1,20 @@
+- hosts: all
+
+  tasks:
+    - name: Install 'ntpdate' package
+      apt:
+        name: ntpdate
+      become: yes
+
+    - name: Add ntpdate to cron
+      cron:
+        name: ntpdate
+        minute: "5"
+        user: root
+        job: "/usr/sbin/ntpdate ntp.localnet"
+        cron_file: ntpdate_local
+      become: yes
+
+    - name: Sync time now
+      command: /usr/sbin/ntpdate ntp.localnet
+      become: yes
