@@ -1,0 +1,19 @@
+- hosts: all
+
+  tasks:
+    - name: Install 'tzdata' package
+      apt:
+        name: tzdata
+      become: yes
+
+    - name: Setup /etc/localtime
+      file:
+        src: /usr/share/zoneinfo/Europe/Moscow
+        dest: /etc/localtime
+        state: link
+        force: yes
+      become: yes
+
+    - name: Setup /etc/timezone
+      command: echo "Europe/Moscow" > /etc/localtime
+      become: yes
