@@ -1,0 +1,128 @@
+- hosts: all
+
+  tasks:
+  - name: Update cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    become: yes
+    tags: update
+
+  - name: Basic packages
+    apt:
+      name:
+      - acpi-support
+      - bash-completion
+      - bc
+      - cifs-utils
+      - dosfstools
+      - e2fsprogs
+      - gawk
+      - sed
+      - grep
+      - less
+      - bzip2
+      - p7zip-full
+      - unzip
+      - dialog
+      - expect
+      - file
+      - fxload
+      - gawk
+      - less
+      - lshw
+      - lvm2
+      - mc
+      - minicom
+      - parted
+      - fdisk
+      - pv
+      - rsync
+      - sudo
+      - tree
+      - util-linux
+      state: present
+      update_cache: yes
+    become: yes
+    tags: basic
+
+  - name: Network tools
+    apt:
+      name:
+      - net-tools
+      - nmap
+      - curl
+      - wget
+      - lynx
+      - netcat
+      - openssh-client
+      - iperf
+      - ethtool
+      - socat
+      state: present
+      update_cache: yes
+    become: yes
+    tags: network
+
+  - name: Dev tools
+    apt:
+      name:
+      - g++
+      - gcc
+      - gdb
+      - make
+      - cmake
+      - autoconf
+      - automake
+      - libtool
+      - mercurial
+      - git
+      - subversion
+      - cppcheck
+      - shellcheck
+      state: present
+      update_cache: yes
+    become: yes
+    tags: dev
+
+  - name: Security tools
+    apt:
+      name:
+      - fail2ban
+      - debsums
+      - rkhunter
+      state: present
+      update_cache: yes
+    become: yes
+    tags: security
+
+  - name: GUI applications
+    apt:
+      name:
+      - terminator
+      - wireshark
+      - mupdf
+      - tortoisehg
+      - meld
+      state: present
+      update_cache: yes
+    become: yes
+    tags: gui_dev
+
+  - name: Remove packages
+    apt:
+      name:
+      - pulseaudio
+      - alsa-utils
+      - wpasupplicant
+      - firebird
+      state: absent
+      purge: yes
+    become: yes
+    tags: purge
+
+  - name: Autoremove unused packages
+    apt:
+      autoremove: yes
+    become: yes
+    tags: autoremove
