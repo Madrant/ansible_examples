@@ -1,0 +1,40 @@
+- hosts: linux:&supermicro
+
+  vars:
+    ipmicfg_url: "https://www.supermicro.com/wftp/utility/IPMICFG/IPMICFG_1.32.0_build.200910.zip"
+    ipmicfg_dst: "/usr/sbin/ipmicfg"
+
+  tasks:
+
+  - name: Download ipmicfg archive
+    get_url:
+      url: "{{ ipmicfg_url }}"
+      dest: /tmp/ipmicfg.zip
+
+  - name: Unzip ipmicfg archive
+    unarchive:
+      src: /tmp/ipmicfg.zip
+      dest: /opt/ipmicfg
+      remote_src: yes
+    become: yes
+
+  - name: Locate ipmicfg executable
+    find:
+      patterns: "IPMICFG-Linux.x86_64"
+      paths: /opt/ipmicfg
+      recurse: yes
+    register: output
+
+  - debug:
+      msg: "ipmicfg path: {{ output.files[0].path }}"
+
+  - name: Create symlink to ipmicfg
+    file:
+      src: "{{ output.files[0].path }}"
+      dest: "{{ ipmicfg_dst }}"
+      state: link
+      force: yes
+    become: yes
+
+  - debug:
+      msg: "ipmicfg is available as: {{ ipmicfg_dst }}"
