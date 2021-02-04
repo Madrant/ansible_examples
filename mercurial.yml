@@ -1,5 +1,4 @@
-- hosts: localhost,all
-
+- hosts: linux_dev
   tasks:
 
   - name: Install mercurial
@@ -18,13 +17,33 @@
       value: "{{ item.value }}"
     with_items:
       - { section: "tortoisehg", option: "ui.language", value: "en" }
-
       - { section: "extensions", value: "", option: "purge" }
       - { section: "extensions", value: "", option: "largefiles" }
       - { section: "extensions", value: "", option: "strip" }
       - { section: "extensions", value: "", option: "rebase" }
       - { section: "extensions", value: "", option: "hgext.bookmarks" }
+    become: yes
 
-      - { section: "http_proxy", option: "host", value: "corvus.localnet:8080" }
+  - name: Setup mercurial proxy
+    ini_file:
+      path: /etc/mercurial/hgrc
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      value: "{{ item.value }}"
+    with_items:
+      - { section: "http_proxy", option: "host", value: "{{ hostvars[inventory_hostname].http_proxy }}" }
       - { section: "http_proxy", option: "no", value: "*.localnet,192.168.253.0/24" }
     become: yes
+    when: hostvars[inventory_hostname].http_proxy is defined
+
+  - name: Remove mercurial proxy
+    ini_file:
+      path: /etc/mercurial/hgrc
+      section: "{{ item.section }}"
+      option: "{{ item.option }}"
+      state: absent
+    with_items:
+      - { section: "http_proxy", option: "host" }
+      - { section: "http_proxy", option: "no" }
+    become: yes
+    when: hostvars[inventory_hostname].http_proxy is not defined
