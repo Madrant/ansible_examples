@@ -1,8 +1,7 @@
-- hosts: all
+- hosts: linux
 
   vars:
     dist_name: buster
-    apt_proxy: "http://apt-cacher.localnet:3142"
     apt_sources:
       - "deb http://mirror.yandex.ru/debian {{ dist_name }} main contrib non-free"
       - "deb-src http://mirror.yandex.ru/debian {{ dist_name }} main contrib non-free"
@@ -23,6 +22,14 @@
         content: |
           Acquire::http::proxy "{{ apt_proxy }}";
       become: yes
+      when: hostvars[inventory_hostname].apt_proxy is defined
+
+    - name: Remove apt proxy
+      file:
+        path: /etc/apt/apt.conf.d/99proxy
+        state: absent
+      become: yes
+      when: hostvars[inventory_hostname].apt_proxy is not defined
 
     - name: Remove apt proxy from apt.conf
       lineinfile:
@@ -48,6 +55,7 @@
         - "{{ dist_name }} main"
         - "{{ dist_name }}/updates"
         - "{{ dist_name }}-updates"
+        - "{{ dist_name }}-backports"
       become: yes
 
     - name: Update sources
