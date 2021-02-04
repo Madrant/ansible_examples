@@ -1,0 +1,14 @@
+- hosts: linux
+  tasks:
+
+    - name: Set hostname
+      copy:
+        dest: /etc/hostname
+        content: "{{ hostvars[inventory_hostname].hostname }}\n" # 'inventory_hostname' is a magic variable
+      become: yes
+      register: hostname
+
+    - name: Update hostname
+      command: hostname "{{ hostvars[inventory_hostname].hostname }}"
+      become: yes
+      when: hostname.changed
