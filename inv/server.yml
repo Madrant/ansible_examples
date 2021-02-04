@@ -1,0 +1,33 @@
+all:
+  # Hosts definition
+  hosts:
+    linux_server:
+      ansible_ssh_host: 192.168.253.100
+      ansible_ssh_port: 22
+      ansible_ssh_user: user
+      hostname: "linux-server"
+      interfaces:
+        - { dev: "enp0s3", address: "192.168.253.100" }
+        - { dev: "enp0s8", address: "192.168.252.100" }
+      apt_proxy: "http://apt-cacher.localnet:3142"
+      http_proxy: "http://proxy.localnet:8080"
+      sudoers:
+        - user
+
+  # Groups definition
+  children:
+
+    # By type
+    supermicro:
+      hosts: linux_server
+
+    # By OS
+    linux:
+      hosts: linux_server
+
+    # By purpose
+    linux_gui:
+      hosts: linux_server
+
+    linux_dev:
+      hosts: linux_server

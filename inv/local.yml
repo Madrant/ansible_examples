@@ -1,0 +1,19 @@
+all:
+  hosts:
+    local_pc:
+      hostname: "debian"
+      apt_proxy: "http://apt-cacher.localnet:3142"
+      http_proxy: "http://proxy.localnet:8080"
+      sudoers:
+        - user
+
+  vars:
+    ansible_connection: local
+
+  children:
+
+    linux:
+      hosts: local_pc
+
+    linux_dev:
+      hosts: local_pc
