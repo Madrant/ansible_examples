@@ -1,0 +1,26 @@
+- hosts: linux
+
+- import_playbook: sudoers.yml
+
+# Configure apt and install packages
+- import_playbook: apt_config.yml
+- import_playbook: apt_packages.yml
+
+# Basic system setup
+- import_playbook: hostname.yml
+- import_playbook: locale.yml
+- import_playbook: timezone.yml
+- import_playbook: skel.yml
+- import_playbook: proxy.yml
+
+# Specific system setup
+- import_playbook: sysctl.yml
+
+# Packages and services setup
+- import_playbook: ntpdate.yml
+- import_playbook: mercurial.yml
+
+# Supermicro servers setup
+- hosts: supermicro
+
+- import_playbook: supermicro_install_ipmicfg.yml
