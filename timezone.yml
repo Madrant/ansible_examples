@@ -1,4 +1,4 @@
-- hosts: all
+- hosts: linux
 
   tasks:
     - name: Install 'tzdata' package
@@ -15,5 +15,7 @@
       become: yes
 
     - name: Setup /etc/timezone
-      command: echo "Europe/Moscow" > /etc/localtime
+      blockinfile:
+        path: /etc/localtime
+        block: "Europe/Moscow"
       become: yes
