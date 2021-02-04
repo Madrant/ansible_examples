@@ -1,8 +1,4 @@
-- hosts: all
-
-  vars:
-    sudoers:
-      - user
+- hosts: linux
 
   tasks:
     - name: Check sudo group is present
@@ -24,5 +20,6 @@
         name: "{{ item }}"
         groups: sudo
         append: yes
-      with_items: "{{ sudoers }}"
       become: yes
+      with_items: "{{ sudoers }}"
+      when: hostvars[inventory_hostname].sudoers is defined
