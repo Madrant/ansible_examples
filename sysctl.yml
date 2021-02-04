@@ -1,0 +1,21 @@
+- hosts: linux
+  tasks:
+
+  - name: Disable ipv6
+    ini_file:
+      path: /etc/sysctl.conf
+      section: null
+      option: "{{ item }}"
+      value: "1"
+      state: present
+    with_items:
+      - net.ipv6.conf.all.disable_ipv6
+      - net.ipv6.conf.default.disable_ipv6
+      - net.ipv6.conf.lo.disable_ipv6
+    become: yes
+    register: sysctl
+
+  - name: Reload kernel parameters
+    shell: sysctl -p
+    become: yes
+    when: sysctl.changed
