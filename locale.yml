@@ -1,6 +1,6 @@
-- hosts: all
-
+- hosts: linux
   tasks:
+
     - name: Install 'locales' package
       apt:
         name: locales
@@ -17,9 +17,18 @@
       become: yes
 
     - name: Set default locale to 'en_US.UTF-8'
-      command: localectl set-locale en_US.UTF-8
+      lineinfile:
+        path: /etc/default/locale
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+      with_items:
+        - { regexp: "^LANG=", line: "LANG=en_US.UTF-8" }
+        - { regexp: "^LANGUAGE=", line: "LANGUAGE=en_US:en" }
       become: yes
 
     - name: Change time format to 24-hour
-      command: localectl set-locale LC_TIME=en_GB.UTF-8
+      lineinfile:
+        path: /etc/default/locale
+        regexp: "^LC_TIME="
+        line: "LC_TIME=en_GB.UTF-8"
       become: yes
