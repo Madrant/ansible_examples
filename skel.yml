@@ -1,0 +1,10 @@
+- hosts: linux
+
+  tasks:
+    - name: Setup PATH in .bashrc
+      lineinfile:
+        path: /etc/skel/.bashrc
+        regexp: "^export PATH"
+        line: "export PATH=\"${PATH}:/sbin:/usr/sbin\""
+        state: present
+      become: yes
