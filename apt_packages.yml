@@ -1,6 +1,6 @@
-- hosts: all
-
+- hosts: linux
   tasks:
+
   - name: Update cache
     apt:
       update_cache: yes
@@ -64,6 +64,21 @@
     become: yes
     tags: network
 
+  - name: Security tools
+    apt:
+      name:
+      - fail2ban
+      - debsums
+      - rkhunter
+      state: present
+      update_cache: yes
+    become: yes
+    tags: security
+
+# Install compiler and versioning tools only for dev linux machines
+- hosts: linux_dev
+  tasks:
+
   - name: Dev tools
     apt:
       name:
@@ -85,16 +100,9 @@
     become: yes
     tags: dev
 
-  - name: Security tools
-    apt:
-      name:
-      - fail2ban
-      - debsums
-      - rkhunter
-      state: present
-      update_cache: yes
-    become: yes
-    tags: security
+# Install GUI applications only for servers with GUI
+- hosts: linux_gui
+  tasks:
 
   - name: GUI applications
     apt:
@@ -120,6 +128,10 @@
       purge: yes
     become: yes
     tags: purge
+
+# Continue with autoremove for all linux machines
+- hosts: linux
+  tasks:
 
   - name: Autoremove unused packages
     apt:
