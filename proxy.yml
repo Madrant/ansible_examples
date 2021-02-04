@@ -1,0 +1,15 @@
+- hosts: linux
+
+  tasks:
+    - name: Setup proxy in /etc/environment
+      lineinfile:
+        path: /etc/environment
+        regexp: "{{ item.regexp }}"
+        line: "{{ item.line }}"
+        state: present
+      with_items:
+        - { regexp: "^export https_proxy", line: "export https_proxy=\"{{ hostvars[inventory_hostname].http_proxy }}\"" }
+        - { regexp: "^export http_proxy", line: "export http_proxy=\"{{ hostvars[inventory_hostname].http_proxy }}\"" }
+        - { regexp: "^export ftp_proxy", line: "export ftp_proxy=\"{{ hostvars[inventory_hostname].http_proxy }}\"" }
+      become: yes
+      when: hostvars[inventory_hostname].http_proxy is defined
