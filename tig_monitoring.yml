@@ -1,0 +1,78 @@
+- hosts: linux
+  tasks:
+
+  - name: Install Telegraf + InfluxDB + Grafana
+    apt:
+      package:
+        - telegraf
+        - influxdb
+        - grafana
+      state: latest
+      update_cache: yes
+    become: yes
+
+  - name: Start InfluxDB service
+    service:
+      name: influxdb
+      state: started
+      enabled: yes
+    become: yes
+
+  - name: Generate Telegraf config to use InfluxDB
+    shell: telegraf -sample-config --input-filter cpu:mem:disk:diskio:nvidia-smi:sensors:temp --output-filter influxdb
+    register: telegraf_config
+
+  - name: Save Telegraf config to file
+    copy:
+      dest: /etc/telegraf/telegraf.conf
+      content: "{{ telegraf_config.stdout }}"
+    become: yes
+
+  - name: Start Telegraf service
+    service:
+      name: telegraf
+      state: started
+      enabled: yes
+    become: yes
+
+  - name: Connect InfluxDB to Grafana
+    copy:
+      dest: /etc/grafana/provisioning/datasources/influx.yaml
+      content: |
+        apiVersion: 1
+        datasources:
+            - name: InfluxDB
+              type: influxdb
+              access: proxy
+              database: telegraf
+              user:
+              password:
+              url: http://localhost:8086
+              isDefault: true
+              jsonData:
+                httpMode: GET
+    become: yes
+
+  - name: Enable anonymous access to Grafana
+    ini_file:
+      path: /etc/grafana/grafana.ini
+      section: auth.anonymous
+      option: enabled
+      value: "true"
+    become: yes
+    register: grafana_ini
+
+  - name: Restart Grafana server
+    service:
+      name: grafana-server
+      state: restarted
+      enabled: yes
+    become: yes
+    when: grafana_ini.changed
+
+  - name: Start Grafana server
+    service:
+      name: grafana-server
+      state: started
+      enabled: yes
+    become: yes
