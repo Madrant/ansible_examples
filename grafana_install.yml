@@ -1,0 +1,53 @@
+- hosts: linux
+
+  vars:
+    grafana_apt_source: "deb https://packages.grafana.com/oss/deb stable main"
+    grafana_gpg_url: https://packages.grafana.com/gpg.key
+    grafana_gpg_tmp: /tmp/grafana_gpg.key
+
+  tasks:
+  - name: Install gnupg2 package
+    apt:
+      name:
+      - gnupg2
+      state: present
+      update_cache: no
+    become: yes
+
+    # apt_key module cannot download GPG key through proxy
+  - name: Download Grafana GPG key
+    get_url:
+      url: "{{ grafana_gpg_url }}"
+      dest: "{{ grafana_gpg_tmp }}"
+
+  - name: Add Grafana GPG
+    apt_key:
+      file: "{{ grafana_gpg_tmp }}"
+      state: present
+    become: yes
+
+  - name: Remove downloaded Grafana GPG key
+    file:
+      path: "{{ grafana_gpg_tmp }}"
+      state: absent
+
+  - name: Add apt sources for Grafana
+    apt_repository:
+      repo: "{{ grafana_apt_source }}"
+      filename: grafana
+      state: present
+    become: yes
+
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    become: yes
+
+  - name: Install Grafana package
+    apt:
+      name:
+      - grafana
+      state: present
+      update_cache: no
+    become: yes
