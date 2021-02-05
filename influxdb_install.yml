@@ -1,0 +1,53 @@
+- hosts: linux
+
+  vars:
+    influx_apt_source: "deb https://repos.influxdata.com/debian buster stable"
+    influx_gpg_url: https://repos.influxdata.com/influxdb.key
+    influx_gpg_tmp: /tmp/influxdb_gpg.key
+
+  tasks:
+  - name: Install gnupg2 package
+    apt:
+      name:
+      - gnupg2
+      state: present
+      update_cache: no
+    become: yes
+
+    # apt_key module cannot download GPG key through proxy
+  - name: Download InfluxDB GPG key
+    get_url:
+      url: "{{ influx_gpg_url }}"
+      dest: "{{ influx_gpg_tmp }}"
+
+  - name: Add InfluxDB GPG key
+    apt_key:
+      file: "{{ influx_gpg_tmp }}"
+      state: present
+    become: yes
+
+  - name: Remove downloaded InfluxDB GPG key
+    file:
+      path: "{{ influx_gpg_tmp }}"
+      state: absent
+
+  - name: Add apt sources for InfluxDB
+    apt_repository:
+      repo: "{{ influx_apt_source }}"
+      filename: influxdb
+      state: present
+    become: yes
+
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+    become: yes
+
+  - name: Install InfluxDB package
+    apt:
+      name:
+      - influxdb
+      state: present
+      update_cache: no
+    become: yes
