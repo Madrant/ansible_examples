@@ -1,21 +1,26 @@
 - hosts: linux
 
+  vars:
+    # Europe/Moscow in Debian is a link to W-US which is seems to be broken:
+    # timezone will set as UTC +00h not UTC +03h as expected (valid for Debian 10 Buster at 2021)
+    timezone: "Europe/Minsk"
+
   tasks:
-    - name: Install 'tzdata' package
+    - name: Install tzdata package
       apt:
         name: tzdata
       become: yes
 
-    - name: Setup /etc/localtime
+    - name: Setup /etc/localtime link
       file:
-        src: /usr/share/zoneinfo/Europe/Moscow
+        src: "/usr/share/zoneinfo/{{ timezone }}"
         dest: /etc/localtime
         state: link
         force: yes
       become: yes
 
     - name: Setup /etc/timezone
-      blockinfile:
-        path: /etc/localtime
-        block: "Europe/Moscow"
+      copy:
+        dest: /etc/timezone
+        content: "{{ timezone }}\n"
       become: yes
