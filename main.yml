@@ -18,6 +18,7 @@
 
 # Packages and services setup
 - import_playbook: ntpdate.yml
+- import_playbook: xrdp.yml
 - import_playbook: mercurial.yml
 
 # Supermicro servers setup

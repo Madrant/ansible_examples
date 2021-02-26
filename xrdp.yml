@@ -1,0 +1,14 @@
+- hosts: linux
+
+  tasks:
+    - name: Install 'xrdp' package
+      apt:
+        name: xrdp
+      become: yes
+
+    - name: Enable and start xrdp
+      service:
+        name: xrdp
+        state: started
+        enabled: yes
+      become: yes
