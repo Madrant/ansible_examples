@@ -1,0 +1,59 @@
+- hosts: linux:&supermicro
+
+  vars:
+    udev_rule_file: /etc/udev/rules.d/99-ipmi.rules
+    ipmi_group: telegraf
+
+  tasks:
+
+  - name: Install ipmitool package
+    apt:
+      package: ipmitool
+      state: present
+      update_cache: no
+    become: yes
+
+  - name: Create udev rule to allow IPMI read access
+    lineinfile:
+      path: "{{ udev_rule_file }}"
+      regexp: "^SUBSYSTEM==\"ipmi\", KERNEL==\"ipmi0\", MODE=\"0660\", GROUP=\"{{ ipmi_group }}\""
+      line: "SUBSYSTEM==\"ipmi\", KERNEL==\"ipmi0\", MODE=\"0660\", GROUP=\"{{ ipmi_group }}\""
+      state: present
+      create: yes
+    become: yes
+    register: ipmi_rule
+
+  - name: Reload udev rules
+    shell: udevadm control --reload-rules
+    become: yes
+    when: ipmi_rule.changed
+
+  - name: Restart udev service
+    service:
+      name: udev
+      state: restarted
+    become: yes
+    when: ipmi_rule.changed
+
+  - name: udevadm trigger
+    shell: udevadm trigger
+    become: yes
+    when: ipmi_rule.changed
+
+  - name: Create service to force udevadm trigger on boot
+    copy:
+       dest: /etc/systemd/system/udev-trigger.service
+       content: |
+         [Unit]
+         Description=Force udevadm trigger on load
+         [Service]
+         ExecStart=/usr/sbin/udevadm trigger
+         [Install]
+         WantedBy=multi-user.target
+    become: yes
+
+  - name: Enable udev-trigger.service
+    service:
+      name: udev-trigger
+      enabled: yes
+    become: yes
