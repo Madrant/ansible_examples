@@ -11,6 +11,13 @@
       url: "{{ ipmicfg_url }}"
       dest: /tmp/ipmicfg.zip
 
+  - name: Create directory /opt/ipmicfg
+    file:
+      path: /opt/ipmicfg
+      state: directory
+      mode: '0755'
+    become: yes
+
   - name: Unzip ipmicfg archive
     unarchive:
       src: /tmp/ipmicfg.zip
