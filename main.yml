@@ -25,3 +25,4 @@
 - hosts: supermicro
 
 - import_playbook: supermicro_install_ipmicfg.yml
+- import_playbook: supermicro_install_ipmitool.yml
