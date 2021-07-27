@@ -17,4 +17,4 @@ ansible-playbook -i inv.yml playbook.yml --tags "config,packages"
 ansible-playbook -i inv.yml playbook.yml --skip-tags "config,packages"
 
 # Execute playbook locally (hosts: localhost)
-ansible-playbook --connection=local playbook.yml --ask-become-pass
+ansible-playbook -i inv/local.yml --connection=local --ask-become-pass playbook.yml
