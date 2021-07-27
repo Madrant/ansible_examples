@@ -1,0 +1,24 @@
+- hosts: linux
+  tasks:
+
+  - name: Install Nvidia SMI
+    apt:
+      name: nvidia-smi
+      state: latest
+      update_cache: yes
+    become: yes
+
+  # Nouveau video driver will be blacklisted
+  - name: Install Nvidia driver
+    apt:
+      name: nvidia-driver
+      state: latest
+      update_cache: yes
+    become: yes
+
+  - name: Install Nvidia CUDA Toolkit
+    apt:
+      name: nvidia-cuda-toolkit
+      state: latest
+      update_cache: yes
+    become: yes
