@@ -1,14 +1,25 @@
 - hosts: linux
   tasks:
 
-    - name: Set hostname
+    - debug:
+        msg: "hostname to set: {{ hostvars[inventory_hostname].hostname }}"
+
+    - name: Set hostname at /etc/hostname
       copy:
         dest: /etc/hostname
         content: "{{ hostvars[inventory_hostname].hostname }}\n" # 'inventory_hostname' is a magic variable
       become: yes
-      register: hostname
+      register: etc_hostname
 
     - name: Update hostname
       command: hostname "{{ hostvars[inventory_hostname].hostname }}"
       become: yes
-      when: hostname.changed
+      when: etc_hostname.changed
+
+    - name: Check hostname valid in /etc/hosts
+      lineinfile:
+        dest: /etc/hosts
+        state: present
+        regexp: "^127.0.0.1 localhost"
+        line: "127.0.0.1 localhost {{ hostvars[inventory_hostname].hostname }}"
+      become: yes
